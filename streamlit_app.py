@@ -11,13 +11,13 @@ import streamlit as st
 # =========================================
 st.set_page_config(page_title="Backlog de Iniciativas com IA", page_icon="🤖", layout="wide")
 
-st.title("🤖 Backlog de iniciativas com IA")
+st.title("Backlog de iniciativas com IA")
 st.write(
     """
     Espaço único para registrar e acompanhar **ideias, automações e iniciativas com IA**.
 
-    **Como usar (simples):**
-    - Registre uma iniciativa com poucos campos (1 minuto).
+    **Como usar:**
+    - Registre uma iniciativa.
     - Toda iniciativa nasce com **Status = Nova**.
     - Atualize **Status** e **Responsável** direto na tabela.
     """
