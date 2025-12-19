@@ -14,11 +14,12 @@ st.set_page_config(page_title="Backlog de Iniciativas com IA", page_icon="🤖",
 st.title("🤖 Backlog de iniciativas com IA")
 st.write(
     """
-    Cadastro e acompanhamento de iniciativas com IA, automação e melhorias de processo.
+    Cadastro e acompanhamento de iniciativas com IA.
 
     **Regras simples**
     - Cada iniciativa nasce com **Status = A iniciar**
-    - Atualize **Status**, **Ganhos** e **Comentário** ao longo da execução
+    - Atualize **Status**, **Ganhos obtidos** e **Comentário** ao longo da execução
+    - Os campos de tempo devem ser preenchidos como texto (ex.: `1h`, `30m`, `6 meses`)
     """
 )
 
@@ -28,7 +29,7 @@ st.write(
 STATUS_OPCOES = ["A iniciar", "Em andamento", "Em produção", "Em homologação", "Descartada"]
 FREQUENCIA_OPCOES = ["Diária", "Semanal", "Mensal", "Anual"]
 
-# Você pode ajustar livremente essas listas depois
+# Ajuste livremente essas listas depois
 SETORES_OPCOES = [
     "Inovação", "TI", "Operações", "Comercial", "RH", "Financeiro", "Marketing", "Pós-venda", "Outros"
 ]
@@ -39,7 +40,6 @@ INDICADORES_OPCOES = [
     "Tempo de execução", "Custo operacional", "Produtividade", "Qualidade do dado", "SLA", "Conversão",
     "Receita", "Satisfação do cliente", "Erro operacional", "Outro"
 ]
-UNIDADES_TEMPO = ["Minutos", "Horas", "Dias", "Semanas", "Meses"]
 
 # =========================
 # DADOS (SESSION STATE)
@@ -54,7 +54,7 @@ def _seed_data():
         "Classificação automática de atritos 2R/4R",
         "Assistente para padronização de cadastro no CRM",
         "Automação de anexos e criação de tarefas",
-        "Dash de ROI de iniciativas de IA",
+        "Dashboard de ROI de iniciativas de IA",
         "Sugestão de resposta para atendimento",
         "Detecção de duplicidades de leads",
     ]
@@ -64,7 +64,7 @@ def _seed_data():
         "Erros operacionais recorrentes",
         "Falta de padronização e retrabalho",
         "Baixa visibilidade do status",
-        "Atrasos em entregas por falta de priorização",
+        "Atrasos por falta de priorização",
     ]
 
     solucoes_fake = [
@@ -73,6 +73,15 @@ def _seed_data():
         "Classificador com regras + IA",
         "Dashboard com indicadores e alertas",
         "Integração com sistemas internos",
+    ]
+
+    templates_tempo = [
+        ("1h", "30m", "20m"),
+        ("2h", "50m", "40m"),
+        ("6 meses", "4 meses", "3 meses"),
+        ("10 dias", "3 dias", "2 dias"),
+        ("45m", "20m", "15m"),
+        ("3 semanas", "2 semanas", "1 semana"),
     ]
 
     hoje = datetime.date.today()
@@ -85,11 +94,8 @@ def _seed_data():
         status = random.choice(STATUS_OPCOES)
         freq = random.choice(FREQUENCIA_OPCOES)
         ind = random.choice(INDICADORES_OPCOES)
-        unidade = random.choice(UNIDADES_TEMPO)
 
-        antes = round(random.uniform(1, 20), 1)
-        estimado = round(max(0.1, antes * random.uniform(0.2, 0.8)), 1)
-        real = round(max(0.1, antes * random.uniform(0.15, 0.9)), 1)
+        antes, estimado, real = random.choice(templates_tempo)
 
         rows.append(
             {
@@ -104,7 +110,6 @@ def _seed_data():
                 "Ganhos obtidos": "",
                 "Comentário": "",
                 "Indicador-chave afetado": ind,
-                "Unidade (tempo)": unidade,
                 "Valor antes da IA": antes,
                 "Valor estimado após IA": estimado,
                 "Valor real após IA": real,
@@ -135,15 +140,14 @@ with st.form("form_cadastro"):
     dor = c4.text_area("Dor tratada", height=110)
     solucao = c5.text_area("Solução proposta", height=110)
 
-    c6, c7, c8 = st.columns([1.2, 1.2, 0.8])
+    c6, c7 = st.columns([1.2, 1.2])
     indicador = c6.selectbox("Indicador-chave afetado", INDICADORES_OPCOES)
     frequencia = c7.selectbox("Frequência", FREQUENCIA_OPCOES)
-    unidade = c8.selectbox("Unidade (tempo)", UNIDADES_TEMPO)
 
     c9, c10, c11 = st.columns(3)
-    v_antes = c9.number_input("Valor antes da IA", min_value=0.0, value=0.0, step=0.5)
-    v_estimado = c10.number_input("Valor estimado após IA", min_value=0.0, value=0.0, step=0.5)
-    v_real = c11.number_input("Valor real após IA", min_value=0.0, value=0.0, step=0.5)
+    v_antes = c9.text_input("Valor antes da IA (ex.: 1h, 30m, 6 meses)")
+    v_estimado = c10.text_input("Valor estimado após IA (ex.: 20m, 4 meses)")
+    v_real = c11.text_input("Valor real após IA (ex.: 15m, 3 meses)")
 
     c12, c13 = st.columns(2)
     ganhos = c12.text_area("Ganhos obtidos", height=110)
@@ -175,10 +179,9 @@ if salvar:
                     "Ganhos obtidos": ganhos.strip(),
                     "Comentário": comentario.strip(),
                     "Indicador-chave afetado": indicador,
-                    "Unidade (tempo)": unidade,
-                    "Valor antes da IA": float(v_antes),
-                    "Valor estimado após IA": float(v_estimado),
-                    "Valor real após IA": float(v_real),
+                    "Valor antes da IA": v_antes.strip(),
+                    "Valor estimado após IA": v_estimado.strip(),
+                    "Valor real após IA": v_real.strip(),
                     "Frequência": frequencia,
                 }
             ]
@@ -219,7 +222,7 @@ if busca.strip():
     vis = vis[mask]
 
 st.write(f"Total no backlog: `{len(df_main)}` | Mostrando: `{len(vis)}`")
-st.info("Você pode editar a tabela (duplo clique). Foque em **Status**, **Ganhos** e **Comentário**.", icon="✍️")
+st.info("Você pode editar a tabela (duplo clique). Foque em **Status**, **Ganhos obtidos** e **Comentário**.", icon="✍️")
 
 edited = st.data_editor(
     vis,
@@ -233,21 +236,14 @@ edited = st.data_editor(
         "Categoria de iniciativa": st.column_config.SelectboxColumn(
             "Categoria de iniciativa", options=CATEGORIAS_OPCOES, required=True
         ),
-        "Status": st.column_config.SelectboxColumn(
-            "Status", options=STATUS_OPCOES, required=True
-        ),
+        "Status": st.column_config.SelectboxColumn("Status", options=STATUS_OPCOES, required=True),
         "Indicador-chave afetado": st.column_config.SelectboxColumn(
             "Indicador-chave afetado", options=INDICADORES_OPCOES, required=True
         ),
-        "Frequência": st.column_config.SelectboxColumn(
-            "Frequência", options=FREQUENCIA_OPCOES, required=True
-        ),
-        "Unidade (tempo)": st.column_config.SelectboxColumn(
-            "Unidade (tempo)", options=UNIDADES_TEMPO, required=True
-        ),
-        "Valor antes da IA": st.column_config.NumberColumn("Valor antes da IA", min_value=0.0, step=0.5),
-        "Valor estimado após IA": st.column_config.NumberColumn("Valor estimado após IA", min_value=0.0, step=0.5),
-        "Valor real após IA": st.column_config.NumberColumn("Valor real após IA", min_value=0.0, step=0.5),
+        "Frequência": st.column_config.SelectboxColumn("Frequência", options=FREQUENCIA_OPCOES, required=True),
+        "Valor antes da IA": st.column_config.TextColumn("Valor antes da IA"),
+        "Valor estimado após IA": st.column_config.TextColumn("Valor estimado após IA"),
+        "Valor real após IA": st.column_config.TextColumn("Valor real após IA"),
         "Ganhos obtidos": st.column_config.TextColumn("Ganhos obtidos"),
         "Comentário": st.column_config.TextColumn("Comentário"),
     },
@@ -255,13 +251,11 @@ edited = st.data_editor(
 )
 
 # =========================
-# SINCRONIZAÇÃO DAS EDIÇÕES PARA O DATASET PRINCIPAL
-# (edita uma visão filtrada; precisamos aplicar no df completo)
+# SINCRONIZAÇÃO DAS EDIÇÕES
 # =========================
 df_main_idx = df_main.set_index("ID")
 edited_idx = edited.set_index("ID")
 
-# Atualiza todas as colunas (exceto ID) nos IDs que apareceram na visão
 cols_to_update = [c for c in edited_idx.columns if c in df_main_idx.columns]
 for col in cols_to_update:
     df_main_idx.loc[edited_idx.index, col] = edited_idx[col]
@@ -283,11 +277,10 @@ c3.metric("Em produção", int((df_kpi["Status"] == "Em produção").sum()))
 c4.metric("Em homologação", int((df_kpi["Status"] == "Em homologação").sum()))
 c5.metric("Descartadas", int((df_kpi["Status"] == "Descartada").sum()))
 
-st.write("")
-
 # =========================
 # GRÁFICOS
 # =========================
+st.write("")
 st.subheader("Status por mês (Data de inclusão)")
 status_plot = (
     alt.Chart(df_kpi)
@@ -316,6 +309,6 @@ cat_plot = (
 st.altair_chart(cat_plot, use_container_width=True, theme="streamlit")
 
 st.caption(
-    "Observação: neste modelo (Streamlit Cloud), os dados podem não ficar persistentes como um banco real. "
-    "Se você quer que isso vire solução oficial, o próximo passo é persistir em arquivo/banco e colocar controle de acesso."
+    "Observação: este protótipo usa session_state. Se o app reiniciar, pode perder dados. "
+    "Próximo passo recomendado: persistir em arquivo/banco e aplicar controle de acesso."
 )
