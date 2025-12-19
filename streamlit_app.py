@@ -198,6 +198,10 @@ st.divider()
 st.header("📌 Backlog (consulta e atualização)")
 
 df_main = st.session_state.df.copy()
+# Normaliza a coluna de data para evitar erro de tipo no data_editor
+df_main["Data de inclusão"] = pd.to_datetime(df_main["Data de inclusão"], errors="coerce").dt.date
+df_main["Data de inclusão"] = df_main["Data de inclusão"].fillna(datetime.date.today())
+
 
 f1, f2, f3, f4 = st.columns([1, 1, 1, 2])
 flt_status = f1.selectbox("Filtrar Status", ["Todos"] + STATUS_OPCOES)
@@ -261,6 +265,12 @@ for col in cols_to_update:
     df_main_idx.loc[edited_idx.index, col] = edited_idx[col]
 
 st.session_state.df = df_main_idx.reset_index()
+# Re-normaliza após edição (Streamlit pode voltar como Timestamp/string)
+st.session_state.df["Data de inclusão"] = pd.to_datetime(
+    st.session_state.df["Data de inclusão"], errors="coerce"
+).dt.date
+st.session_state.df["Data de inclusão"] = st.session_state.df["Data de inclusão"].fillna(datetime.date.today())
+
 
 # =========================
 # INDICADORES
