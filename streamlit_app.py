@@ -48,31 +48,6 @@ def _seed_data():
     np.random.seed(42)
     random.seed(42)
 
-    titulos_fake = [
-        "Resumo automático de reuniões",
-        "Triagem de solicitações internas com IA",
-        "Classificação automática de atritos 2R/4R",
-        "Assistente para padronização de cadastro no CRM",
-        "Automação de anexos e criação de tarefas",
-        "Dashboard de ROI de iniciativas de IA",
-        "Sugestão de resposta para atendimento",
-        "Detecção de duplicidades de leads",
-    ]
-
-    dores_fake = [
-        "Alto tempo gasto manualmente",
-        "Erros operacionais recorrentes",
-        "Falta de padronização e retrabalho",
-        "Baixa visibilidade do status",
-        "Atrasos por falta de priorização",
-    ]
-
-    solucoes_fake = [
-        "Uso de IA para sumarização e geração de texto",
-        "Automação com workflow e validações",
-        "Classificador com regras + IA",
-        "Dashboard com indicadores e alertas",
-        "Integração com sistemas internos",
     ]
 
     templates_tempo = [
