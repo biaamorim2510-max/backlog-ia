@@ -11,7 +11,7 @@ import streamlit as st
 # =========================
 st.set_page_config(page_title="Backlog de Iniciativas com IA", page_icon="🤖", layout="wide")
 
-st.title("🤖 Backlog de iniciativas com IA")
+st.title("Backlog de iniciativas com IA")
 st.write(
     """
     Cadastro e acompanhamento de iniciativas com IA.
